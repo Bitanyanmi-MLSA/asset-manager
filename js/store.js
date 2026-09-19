@@ -16,9 +16,7 @@ const DEFAULT_CATEGORIES = [
 ];
 
 const DEFAULT_LOCATIONS = [
-  'Accra HQ - Airport City', 'Accra HQ - Ridge Office', 'Tema Warehouse',
-  'Kumasi Branch', 'Takoradi Branch', 'Tamale Branch',
-  'Remote / Home Office', 'East Legon Office'
+  'Kitchen', 'Office', 'Church'
 ];
 
 function uid() {

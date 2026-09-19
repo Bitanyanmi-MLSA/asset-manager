@@ -2,7 +2,7 @@
 
 A professional, single-page **Asset Management System** built with vanilla HTML/CSS/JS, Bootstrap 5, and Chart.js. Track hardware, software licenses, and equipment across your organization — assign assets to people, monitor maintenance and warranty status, and generate reports, all from a fast, responsive dashboard.
 
-This build is localized for **Ghana** 🇬🇭: all monetary values are displayed in **Ghanaian Cedi (GH₵ / GHS)**, and sample data uses Ghanaian locations (Accra, Tema, Kumasi, Takoradi, Tamale), names, and vendors.
+This build is localized for **Ghana** 🇬🇭: all monetary values are displayed in **Ghanaian Cedi (GH₵ / GHS)**, sample locations are Kitchen, Office, and Church, and sample data uses Ghanaian names and vendors.
 
 🔗 **Live demo:** published via GitHub Pages (see below for the link once deployed).
 
