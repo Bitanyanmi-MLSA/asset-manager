@@ -7,8 +7,13 @@ const STORAGE_KEYS = {
   categories: 'atp_categories',
   locations: 'atp_locations',
   activity: 'atp_activity',
-  seeded: 'atp_seeded'
+  seeded: 'atp_seeded',
+  locationsVersion: 'atp_locations_version'
 };
+
+// Bump this whenever DEFAULT_LOCATIONS changes so existing browsers
+// (which already have data saved from a previous version) auto-migrate.
+const LOCATIONS_VERSION = '2026-09-19-kitchen-office-church';
 
 const DEFAULT_CATEGORIES = [
   'Laptops', 'Desktops', 'Monitors', 'Mobile Devices', 'Networking Equipment',
@@ -145,5 +150,31 @@ const Store = {
     }
     if (this.getCategories().length === 0) this.saveCategories([...DEFAULT_CATEGORIES]);
     if (this.getLocations().length === 0) this.saveLocations([...DEFAULT_LOCATIONS]);
+    this.migrateLocations();
+  },
+
+  // Forces the location list to the current DEFAULT_LOCATIONS the first time
+  // a browser loads a build with a new LOCATIONS_VERSION, and reassigns any
+  // asset whose location no longer exists in the new list. This ensures
+  // location updates (like this one, to Kitchen/Office/Church) take effect
+  // automatically without requiring the user to manually reset data.
+  migrateLocations() {
+    const storedVersion = localStorage.getItem(STORAGE_KEYS.locationsVersion);
+    if (storedVersion === LOCATIONS_VERSION) return;
+
+    this.saveLocations([...DEFAULT_LOCATIONS]);
+
+    const assets = this.getAssets();
+    const validLocations = new Set(DEFAULT_LOCATIONS);
+    let changed = false;
+    assets.forEach(a => {
+      if (!validLocations.has(a.location)) {
+        a.location = DEFAULT_LOCATIONS[Math.floor(Math.random() * DEFAULT_LOCATIONS.length)];
+        changed = true;
+      }
+    });
+    if (changed) this.saveAssets(assets);
+
+    localStorage.setItem(STORAGE_KEYS.locationsVersion, LOCATIONS_VERSION);
   }
 };
