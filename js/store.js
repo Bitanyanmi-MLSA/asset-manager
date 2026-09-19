@@ -16,8 +16,9 @@ const DEFAULT_CATEGORIES = [
 ];
 
 const DEFAULT_LOCATIONS = [
-  'HQ - 1st Floor', 'HQ - 2nd Floor', 'HQ - 3rd Floor', 'Warehouse A',
-  'Remote / Home Office', 'Branch Office - East', 'Branch Office - West'
+  'Accra HQ - Airport City', 'Accra HQ - Ridge Office', 'Tema Warehouse',
+  'Kumasi Branch', 'Takoradi Branch', 'Tamale Branch',
+  'Remote / Home Office', 'East Legon Office'
 ];
 
 function uid() {
@@ -110,7 +111,7 @@ const Store = {
       ['Logitech Webcam C920', 'Peripherals'],
       ['HP LaserJet Pro Printer', 'Peripherals']
     ];
-    const people = ['Alice Chen', 'Marcus Reed', 'Priya Nair', 'Diego Alvarez', 'Fatima Al-Sayed', '', '', ''];
+    const people = ['Kwame Owusu', 'Ama Serwaa', 'Kofi Mensah', 'Akosua Boateng', 'Yaw Asante', 'Abena Darko', '', '', ''];
 
     const assets = names.map((n, i) => {
       const purchaseDaysAgo = 30 + Math.floor(Math.random() * 900);
@@ -129,8 +130,8 @@ const Store = {
         location: locations[Math.floor(Math.random() * locations.length)],
         purchaseDate: purchaseDate.toISOString().slice(0, 10),
         warrantyEnd: warrantyEnd.toISOString().slice(0, 10),
-        value: Math.round((150 + Math.random() * 2500) * 100) / 100,
-        vendor: ['CDW', 'Amazon Business', 'Insight', 'Best Buy Business'][Math.floor(Math.random() * 4)],
+        value: Math.round((1500 + Math.random() * 42000) * 100) / 100,
+        vendor: ['Compu Ghana', 'Franko Trading Enterprise', 'Jumia Ghana', 'Telefonika Ghana'][Math.floor(Math.random() * 4)],
         notes: '',
         createdAt: new Date().toISOString()
       };

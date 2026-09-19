@@ -95,13 +95,13 @@
   }
 
   function fmtMoney(n) {
-    return (Number(n) || 0).toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+    return (Number(n) || 0).toLocaleString('en-GH', { style: 'currency', currency: 'GHS', maximumFractionDigits: 2 });
   }
 
   function fmtDate(d) {
     if (!d) return '—';
     const date = new Date(d);
-    return isNaN(date) ? '—' : date.toLocaleDateString();
+    return isNaN(date) ? '—' : date.toLocaleDateString('en-GH');
   }
 
   /* ---------- Filtering / search ---------- */
