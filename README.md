@@ -9,7 +9,7 @@ This build is localized for **Ghana** 🇬🇭: all monetary values are displaye
 ## Features
 
 - **Dashboard** — KPIs (total assets, total value, assigned count, in-maintenance count), status/category/value charts, upcoming warranty expirations, and recent activity feed.
-- **Assets** — searchable, sortable, paginated inventory table with filters by category, status, and location. Full create/edit/delete workflow via a modal form.
+- **Assets** — searchable, sortable, paginated inventory table with filters by category, status, and location. Full create/edit/delete workflow via a modal form, including an optional **asset photo** (uploaded photos are resized/compressed in-browser and stored as part of the asset record — click a thumbnail to view it full-size).
 - **Assignments** — view and manage who has which asset, with one-click unassign.
 - **Maintenance** — track assets currently under maintenance and mark them resolved.
 - **Reports** — estimated straight-line depreciation per asset, assets acquired over time, and a category-level inventory summary (count, total value, estimated book value).
@@ -24,7 +24,7 @@ This build is localized for **Ghana** 🇬🇭: all monetary values are displaye
 - Vanilla JavaScript (no build step, no framework)
 - **Data persistence:** browser `localStorage` — there is no backend server, so the app works entirely client-side. This makes it fully compatible with static hosting like GitHub Pages. Sample data is seeded automatically on first load.
 
-> Because GitHub Pages only serves static files, this app intentionally has no server-side component. All data lives in your browser's local storage. Use the Export/Import feature to back up or move data between browsers/devices.
+> Because GitHub Pages only serves static files, this app intentionally has no server-side component. All data — including uploaded asset photos — lives in your browser's local storage. Photos are automatically resized to a max of 480px and compressed to keep storage usage reasonable. Use the Export/Import feature to back up or move data between browsers/devices.
 
 ## Running locally
 

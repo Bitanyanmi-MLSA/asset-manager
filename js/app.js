@@ -180,7 +180,11 @@
   }
 
   function rowHtml(a) {
+    const photoCell = a.photo
+      ? `<img src="${a.photo}" class="asset-thumb btn-view-photo" data-name="${escapeHtml(a.name)}" alt="${escapeHtml(a.name)}">`
+      : `<span class="asset-thumb-placeholder"><i class="bi bi-image"></i></span>`;
     return `<tr data-id="${a.id}">
+      <td>${photoCell}</td>
       <td class="fw-semibold">${escapeHtml(a.tag)}</td>
       <td>${escapeHtml(a.name)}</td>
       <td>${escapeHtml(a.category)}</td>
@@ -224,6 +228,11 @@
         toast('Asset deleted');
         render();
       }
+    }));
+    $all('#assetsTableBody .btn-view-photo').forEach(img => img.addEventListener('click', () => {
+      $('#photoLightboxTitle').textContent = img.dataset.name || 'Asset Photo';
+      $('#photoLightboxImg').src = img.src;
+      new bootstrap.Modal(document.getElementById('photoLightbox')).show();
     }));
   }
 
@@ -396,10 +405,74 @@
   const assetModalEl = document.getElementById('assetModal');
   const assetModal = new bootstrap.Modal(assetModalEl);
 
+  /* Resize/compress an uploaded image client-side before storing it as a
+     base64 data URL in localStorage, keeping saved data small since browser
+     storage quotas are limited (typically ~5-10MB per origin). */
+  const MAX_PHOTO_DIMENSION = 480;
+  const PHOTO_JPEG_QUALITY = 0.72;
+
+  function resizeImageFile(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Could not read the selected file.'));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error('Could not load the selected image.'));
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > height && width > MAX_PHOTO_DIMENSION) {
+            height = Math.round(height * (MAX_PHOTO_DIMENSION / width));
+            width = MAX_PHOTO_DIMENSION;
+          } else if (height > MAX_PHOTO_DIMENSION) {
+            width = Math.round(width * (MAX_PHOTO_DIMENSION / height));
+            height = MAX_PHOTO_DIMENSION;
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width; canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', PHOTO_JPEG_QUALITY));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function setPhotoPreview(dataUrl) {
+    $('#fPhoto').value = dataUrl || '';
+    if (dataUrl) {
+      $('#photoPreview').src = dataUrl;
+      $('#photoPreview').classList.remove('d-none');
+      $('#photoPlaceholder').classList.add('d-none');
+      $('#btnRemovePhoto').classList.remove('d-none');
+    } else {
+      $('#photoPreview').src = '';
+      $('#photoPreview').classList.add('d-none');
+      $('#photoPlaceholder').classList.remove('d-none');
+      $('#btnRemovePhoto').classList.add('d-none');
+    }
+  }
+
+  document.getElementById('fPhotoInput').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { alert('Please choose an image file.'); e.target.value = ''; return; }
+    try {
+      const dataUrl = await resizeImageFile(file);
+      setPhotoPreview(dataUrl);
+    } catch (err) {
+      alert(err.message || 'Failed to process the image.');
+    }
+    e.target.value = '';
+  });
+
+  document.getElementById('btnRemovePhoto').addEventListener('click', () => setPhotoPreview(''));
+
   function openAssetModal(id) {
     const form = document.getElementById('assetForm');
     form.reset();
     refreshLookups();
+    setPhotoPreview('');
     if (id) {
       const asset = Store.getAssets().find(a => a.id === id);
       if (!asset) return;
@@ -417,6 +490,7 @@
       $('#fWarrantyEnd').value = asset.warrantyEnd || '';
       $('#fVendor').value = asset.vendor || '';
       $('#fNotes').value = asset.notes || '';
+      setPhotoPreview(asset.photo || '');
     } else {
       document.getElementById('assetModalTitle').textContent = 'New Asset';
       $('#assetId').value = '';
@@ -443,19 +517,28 @@
       value: parseFloat($('#fValue').value) || 0,
       warrantyEnd: $('#fWarrantyEnd').value,
       vendor: $('#fVendor').value.trim(),
-      notes: $('#fNotes').value.trim()
+      notes: $('#fNotes').value.trim(),
+      photo: $('#fPhoto').value || ''
     };
 
     const assets = Store.getAssets();
     const dupe = assets.find(a => a.tag.toLowerCase() === payload.tag.toLowerCase() && a.id !== id);
     if (dupe) { alert('An asset with this tag already exists. Please use a unique tag.'); return; }
 
-    if (id) {
-      Store.updateAsset(id, payload);
-      toast('Asset updated');
-    } else {
-      Store.addAsset(payload);
-      toast('Asset added');
+    try {
+      if (id) {
+        Store.updateAsset(id, payload);
+        toast('Asset updated');
+      } else {
+        Store.addAsset(payload);
+        toast('Asset added');
+      }
+    } catch (err) {
+      if (err && err.name === 'QuotaExceededError') {
+        alert('Your browser storage is full. Try removing the photo or deleting older assets, then save again.');
+        return;
+      }
+      throw err;
     }
     assetModal.hide();
     render();
